@@ -140,25 +140,34 @@ var Asteroids = (function () {
 
   /* End Ship */
 
-	function Bullet(startX, startY, direction) {
-		MovingObject.call(this, startX, startY, 1)
-		this.velocity = {
-			x: Math.cos(direction) * 10,
-			y: Math.sin(direction) * 10
-		}
-	}
 
-	Bullet.prototype = new MovingObject();
+  /*
+   * Bullet
+   *
+   * Models a bullet that will be shot from a spaceship to destroy asteroids.
+   *
+   * Params:
+   *   x => The x coordinate of where the Bullet is generated.
+   *   y => The y coordinate of where the Bullet is generated.
+   *   direction => The initial direction the Bullet will travel in.
+   */ 
+  function Bullet(x, y, direction) {
+    MovingObject.call(this, x, y, 1);
+    
+    this.velocity = {
+      x: Math.cos(direction) * 10,
+      y: Math.sin(direction) * 10
+    }
+  }
 
-	Bullet.prototype.update = function(velocity) {
-		console.log(this);
-		console.log(velocity);
-		var newX = (this.x + velocity.x);
-		var newY = (this.y + velocity.y);
+  Bullet.prototype = new MovingObject();
 
-		this.x = newX;
-		this.y = newY;
-	}
+  Bullet.prototype.update = function(velocity) {
+    this.x += velocity.x;
+    this.y += velocity.y;
+  }
+
+  /* End Bullet */
 
 	function Game(ctx) {
 		this.ctx = ctx;
