@@ -45,6 +45,17 @@ var Asteroids = (function () {
             (this.y - this.r < 0))
   }
 
+  MovingObject.prototype.isHit = function(asteroids) {
+    for (var i = 0; i < asteroids.length; ++i) {
+      var dist - Math.sqrt(Math.pow((this.x - asteroids[i].x), 2) +
+                           Math.pow((this.y - asteroids[i].y), 2));
+
+      if (dist < (this.r + asteroids[i].r)) return true;  
+    }
+
+    return false;
+  }
+
   /* End MovingObject */
 
 
@@ -113,19 +124,6 @@ var Asteroids = (function () {
 	Ship.prototype.power = function(dx, dy) {
 		this.velocity.x = 5 * Math.cos(this.direction);
 		this.velocity.y = 5 * Math.sin(this.direction);
-	}
-
-	MovingObject.prototype.isHit = function(asteroids) {
-		for (var i = 0; i < asteroids.length; i++) {
-			var dist = Math.sqrt(
-										Math.pow((this.x - asteroids[i].x), 2) +
-										Math.pow((this.y - asteroids[i].y), 2)
-			);
-
-			if (dist < (this.radius + asteroids[i].radius)) return true;
-		}
-
-		return false;
 	}
 
 	Ship.prototype.fireBullet = function() {
