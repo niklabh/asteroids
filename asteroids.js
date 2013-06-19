@@ -91,45 +91,54 @@ var Asteroids = (function () {
 
   /* End Asteroid */
 
-	function Ship(x, y) {
-		MovingObject.apply(this, arguments);
-		this.velocity = {
-			x: 0,
-			y: 0
-		}
-		this.direction = Math.PI;
-	}
 
-	Ship.prototype = new MovingObject();
 
-	Ship.prototype.draw = function(ctx) {
-		var spaceship = new Image();
-		spaceship.src = "img/spaceship.png";
+  /*
+   * Ship
+   *
+   * Models a spaceship that shoots bullets at asteroids.
+   *
+   * Params:
+   *   x => the x coordinate of the spaceship
+   *   y => the y coordinate of the spaceship
+   */
+  function Ship(x, y) {
+    MovingObject.apply(this, arguments);
 
-		var that = this;
-		spaceship.onload = function() {
-			ctx.save();
-			ctx.translate(that.x, that.y);
-			ctx.rotate(that.direction - Math.PI/2);
-			ctx.translate(-that.x, -that.y);
-			ctx.drawImage(spaceship, that.x - 64, that.y - 64);
-			ctx.restore();
-		}
-	}
+    // The spaceship should not be moving until we tell it to.    
+    this.velocity = { x: 0, y: 0 };
+    this.direction = Math.PI;
+  }
 
-	Ship.prototype.turn = function(d) {
-		this.direction += d
-	}
+  Ship.prototype = new MovingObject();
 
-	Ship.prototype.power = function(dx, dy) {
-		this.velocity.x = 5 * Math.cos(this.direction);
-		this.velocity.y = 5 * Math.sin(this.direction);
-	}
+  Ship.prototype.draw = function(ctx) {
+    var spaceship = new Image();
+    var that = this;
 
-	Ship.prototype.fireBullet = function() {
-		return new Bullet(this.x, this.y, this.direction);
-	}
+    spaceship.src = "img/spaceship.png";
+    spaceship.onload = function() {
+      ctx.save();
+      ctx.translate(that.x, that.y);
+      ctx.rotate(that.direct - Math.PI / 2);
+      ctx.translate(-that.x, -that.y);
+      ctx.drawImage(spaceship, that.x - 64, that.y - 64);
+      ctx.restore();
+    };
+  }
 
+  Ship.prototype.turn = function(delta) { this.direct += delta; };
+
+  Ship.prototype.power = function() {
+    this.velocity.x = 5 * Math.cos(this.direction);
+    this.velocity.y = 5 * Math.sin(this.direction);
+  }
+
+  Ship.prototype.fireBullet = function() {
+    return new Bullet(this.x, this.y, this.direction);
+  }
+
+  /* End Ship */
 
 	function Bullet(startX, startY, direction) {
 		MovingObject.call(this, startX, startY, 1)
