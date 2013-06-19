@@ -48,6 +48,10 @@ var Asteroids = (function () {
 
 	function Asteroid(x, y) {
 		MovingObject.apply(this, arguments);
+		this.velocity = {
+			x: Math.cos(Math.random() * Math.PI) * Math.random() * 5,
+			y: Math.sin(Math.random() * Math.PI) * Math.random() * 5
+		}
 	}
 
 	Asteroid.MAX_RADIUS = 25;
@@ -61,44 +65,37 @@ var Asteroids = (function () {
 
 	Asteroid.prototype = new MovingObject();
 
-
-
-
 	function Ship(x, y) {
 		MovingObject.apply(this, arguments);
 		this.velocity = {
 			x: 0,
 			y: 0
 		}
-		this.direction = (Math.PI / 2);
+		this.direction = Math.PI;
 	}
 
 	Ship.prototype = new MovingObject();
 
 	Ship.prototype.draw = function(ctx) {
-		ctx.fillStyle = "rgb(255, 0, 0)";
-		ctx.beginPath();
-		ctx.arc(
-			this.x,
-			this.y,
-			this.radius,
-			0,
-			2 * Math.PI,
-			false
-		);
-		ctx.closePath();
-		ctx.fill();
+		var spaceship = new Image();
+		spaceship.src = "spaceship.png";
+
+		var that = this;
+		spaceship.onload = function() {
+			ctx.save();
+			ctx.translate(that.x, that.y);
+			ctx.rotate(that.direction - Math.PI/2);
+			ctx.translate(-that.x, -that.y);
+			ctx.drawImage(spaceship, that.x - 64, that.y - 64);
+			ctx.restore();
+		}
 	}
 
 	Ship.prototype.turn = function(d) {
-		console.log(this.direction)
 		this.direction += d
 	}
 
 	Ship.prototype.power = function(dx, dy) {
-		console.log(this.direction)
-		// this.velocity.x = (this.velocity.x + dx) % 20;
-		// this.velocity.y = (this.velocity.y + dy) % 20;
 		this.velocity.x = 5 * Math.cos(this.direction);
 		this.velocity.y = 5 * Math.sin(this.direction);
 	}
@@ -124,11 +121,10 @@ var Asteroids = (function () {
 	function Bullet(startX, startY, direction) {
 		MovingObject.call(this, startX, startY, 1)
 		this.velocity = {
-			x: Math.cos(direction) * 10 + 1,
-			y: Math.sin(direction) * 10 + 1
+			x: Math.cos(direction) * 10,
+			y: Math.sin(direction) * 10
 		}
 	}
-
 
 	Bullet.prototype = new MovingObject();
 
@@ -151,7 +147,7 @@ var Asteroids = (function () {
 		this.gameOver = false;
 
 		this.asteroids = [];
-		for (var i = 0; i < 1; ++i) {
+		for (var i = 0; i < 15; ++i) {
 			this.asteroids.push(Asteroid.randomAsteroid(
 				width, height
 			));
@@ -159,12 +155,10 @@ var Asteroids = (function () {
 
 		this.bullets = [];
 
-		this.ship = new Ship((this.xDim / 2), (this.yDim / 2), 10);
+		this.ship = new Ship((this.xDim / 2), (this.yDim / 2), 32);
 	}
 
 	Game.prototype.draw = function() {
-		// this.ctx.clearRect(0, 0, this.xDim, this.yDim);
-
 		var bg = new Image();
 		bg.src = "dat_background.jpg";
 
@@ -186,9 +180,10 @@ var Asteroids = (function () {
 
 	Game.prototype.update = function() {
 		for (var i = 0; i < this.asteroids.length; ++i) {
-			this.asteroids[i].update({ x: 2, y: 2 });
+			this.asteroids[i].update(this.asteroids[i].velocity);
 			if (this.asteroids[i].isHit(this.bullets)) {
 				this.asteroids.splice(i, 1);
+				this.asteroids.push(Asteroid.randomAsteroid(0, 0));
 			}
 		}
 
@@ -213,10 +208,6 @@ var Asteroids = (function () {
 	Game.prototype.loop = function() {
 		var that = this;
 		if (key.isPressed("up")) that.ship.power(0, -5);
-		// if (key.isPressed("down")) that.ship.power(0, 5);		//
-		// if (key.isPressed("left")) that.ship.power(-5, 0);
-		// if (key.isPressed("right")) that.ship.power(5, 0);
-
 		if (key.isPressed("left")) that.ship.turn(-Math.PI/32);
 		if (key.isPressed("right")) that.ship.turn(Math.PI/32);
 		if (key.isPressed("space")) {
