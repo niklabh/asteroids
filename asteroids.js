@@ -78,7 +78,7 @@ var Asteroids = (function () {
 
 	Ship.prototype.draw = function(ctx) {
 		var spaceship = new Image();
-		spaceship.src = "spaceship.png";
+		spaceship.src = "img/spaceship.png";
 
 		var that = this;
 		spaceship.onload = function() {
@@ -160,7 +160,7 @@ var Asteroids = (function () {
 
 	Game.prototype.draw = function() {
 		var bg = new Image();
-		bg.src = "dat_background.jpg";
+		bg.src = "img/background.jpg";
 
 		var that = this;
 		bg.onload = function() {
