@@ -1,50 +1,53 @@
 var Asteroids = (function () {
+  var width = $(window).width();
+  var height = $(window).height();
 
-	var width = $(window).width();
-	var height = $(window).height();
+  /*
+   *  MovingObject 
+   *
+   *  A base class for all moving objects (asteroids, ships, etc).
+   *
+   *  Params:
+   *    x => the x coordinate of this object in a 2D plane
+   *    y => the y coordinate of this object in a 2D plane
+   *    r => the radius of this object
+   */  
+  function MovingObject(x, y, r) {
+    this.x = x;
+    this.y = y;
+    this.r = r;
+  }
 
-	function MovingObject(x, y, radius) {
-		this.x = x;
-		this.y = y;
-		this.radius = radius;
-	}
+  MovingObject.prototype.update = function(velocity) {
+    var x = (this.x + velocity.x);
+    var y = (this.y + velocity.y);
 
-	MovingObject.prototype.update = function(velocity) {
-		var newX = (this.x + velocity.x);
-		var newY = (this.y + velocity.y);
-		(newX < 0) ? newX += width : newX %= width;
-		(newY < 0) ? newY += height : newY %= height;
+    (x < 0) ? x += width : x %= width;
+    (y < 0) ? y += height : y %= height;
 
-		this.x = newX;
-		this.y = newY;
-	}
+    this.x = x;
+    this.y = y;
+  };
 
-	MovingObject.prototype.draw = function(ctx) {
-		ctx.strokeStyle = "white";
-		ctx.lineWidth = 5;
-		ctx.beginPath();
+  MovingObject.prototype.draw = function(ctx) {
+    ctx.strokeStyle = "white";
+    ctx.lineWidth = 5;
+    ctx.beginPath();
+    ctx.arc(this.x, this.y, this.r, 0, 2 * Math.PI, false);
+    ctx.closePath();
+    ctx.stroke();  
+  }
 
-		ctx.arc(
-			this.x,
-			this.y,
-			this.radius,
-			0,
-			2 * Math.PI,
-			false
-		);
+  MovingObject.prototype.offScreen = function() {
+    return ((this.x + this.r > width)  || 
+            (this.y + this.r > height) ||
+            (this.x - this.r < 0)      || 
+            (this.y - this.r < 0))
+  }
 
-		ctx.closePath();
-		ctx.stroke();
-	}
+  /* End MovingObject */
 
-	MovingObject.prototype.offScreen = function(xLim, yLim) {
-		return (
-			(this.x + this.radius > xLim) ||
-			(this.y + this.radius > yLim) ||
-			(this.x - this.radius < 0) ||
-			(this.y - this.radius < 0)
-		);
-	}
+
 
 	function Asteroid(x, y) {
 		MovingObject.apply(this, arguments);
