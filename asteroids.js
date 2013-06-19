@@ -1,6 +1,6 @@
 var Asteroids = (function () {
-  var width = $(window).width();
-  var height = $(window).height();
+  var w_width = $(window).width();
+  var w_height = $(window).height();
 
   /*
    *  MovingObject 
@@ -22,8 +22,8 @@ var Asteroids = (function () {
     var x = (this.x + velocity.x);
     var y = (this.y + velocity.y);
 
-    (x < 0) ? x += width : x %= width;
-    (y < 0) ? y += height : y %= height;
+    (x < 0) ? x += w_width : x %= w_width;
+    (y < 0) ? y += w_height : y %= w_height;
 
     this.x = x;
     this.y = y;
@@ -39,8 +39,8 @@ var Asteroids = (function () {
   }
 
   MovingObject.prototype.offScreen = function() {
-    return ((this.x + this.r > width)  || 
-            (this.y + this.r > height) ||
+    return ((this.x + this.r > w_width)  || 
+            (this.y + this.r > w_height) ||
             (this.x - this.r < 0)      || 
             (this.y - this.r < 0))
   }
@@ -74,8 +74,8 @@ var Asteroids = (function () {
 
     this.MAX_RADIUS = 25;
     this.randomAsteroid = function() {
-      return new Asteroid(width * Math.random(), 
-                          height * Math.random(),
+      return new Asteroid(w_width * Math.random(), 
+                          w_height * Math.random(),
                           this.MAX_RADIUS * Math.random());
     }
 
