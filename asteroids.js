@@ -49,24 +49,36 @@ var Asteroids = (function () {
 
 
 
-	function Asteroid(x, y) {
-		MovingObject.apply(this, arguments);
-		this.velocity = {
-			x: Math.cos(Math.random() * Math.PI) * Math.random() * 5,
-			y: Math.sin(Math.random() * Math.PI) * Math.random() * 5
-		}
-	}
+  /*
+   *  Asteroid
+   *
+   *  Models asteroids in the game.
+   *
+   *  Params:
+   *    x => the x coordinate of this asteroid in a 2D plane
+   *    y => the y coordinate of this asteroid in a 2D plane
+   */ 
+  function Asteroid(x, y) {
+    MovingObject.apply(this, arguments);
 
-	Asteroid.MAX_RADIUS = 25;
-	Asteroid.randomAsteroid = function(maxX, maxY) {
-		return new Asteroid(
-			maxX * Math.random(),
-			maxY * Math.random(),
-			Asteroid.MAX_RADIUS * Math.random()
-		);
-	}
+    this.MAX_RADIUS = 25;
+    this.randomAsteroid = function() {
+      return new Asteroid(width * Math.random(), 
+                          height * Math.random(),
+                          this.MAX_RADIUS * Math.random());
+    }
 
-	Asteroid.prototype = new MovingObject();
+    // Give this asteroid a random velocity so they all move in different
+    // directions.
+    this.velocity = {
+      x: Math.cos(Math.random() * Math.PI) * Math.random() * 5;
+      y: Math.sin(Math.random() * Math.PI) * Math.random() * 5;
+    } 
+  }
+
+  Asteroid.prototype = new MovingObject();
+
+  /* End Asteroid */
 
 	function Ship(x, y) {
 		MovingObject.apply(this, arguments);
