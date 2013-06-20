@@ -1,15 +1,13 @@
 $(function() {
-	var wx = $(window).width();
-	var wy = $(window).height();
+  var w_width = $(window).width();
+  var w_height = $(window).height();
+  
+  $(
+    "<canvas id='canvas' width='" + w_width + "' height='" + w_height + "'>"
+  ).appendTo('body');
 
-	var canvas = $(
-		"<canvas id='canvas' width='" + wx + "' height='" + wy + "'></canvas>"
-	);
+  var canvas = $('#canvas')
+  var ctx = canvas.getContext('2d');
 
-	$('body').append(canvas);
-
-	var canvas = document.getElementById('canvas');
-	var ctx = canvas.getContext("2d");
-
-	new Asteroids.Game(ctx).start();
+  new Asteroids.Game(ctx).start();
 });
