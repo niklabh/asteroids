@@ -1,13 +1,14 @@
 $(function() {
-  var w_width = $(window).width();
-  var w_height = $(window).height();
+  var w_width = window.innerWidth;
+  var w_height = window.innerHeight;
   
-  $(
-    "<canvas id='canvas' width='" + w_width + "' height='" + w_height + "'>"
-  ).appendTo('body');
+  console.log(window);
+  console.log(w_width);
+  console.log(w_height);
+  $("<canvas id='canvas' width='" + w_width + "' height='" + w_height + "'>").appendTo('body');
 
-  var canvas = $('#canvas')
+  var canvas = document.getElementById('canvas');
   var ctx = canvas.getContext('2d');
 
-  new Asteroids.Game(ctx).start();
+  new Asteroids.Game(ctx,10).start();
 });

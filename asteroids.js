@@ -1,4 +1,19 @@
+//Some Modifications by @niklabh
+
+// shim layer with setTimeout fallback
+window.requestAnimFrame = (function(){
+  return  window.requestAnimationFrame       ||
+          window.webkitRequestAnimationFrame ||
+          window.mozRequestAnimationFrame    ||
+          function( callback ){
+            window.setTimeout(callback, 1000 / 60);
+          };
+})();
+
+
+
 var Asteroids = (function () {
+  
   var w_width = $(window).width();
   var w_height = $(window).height();
 
@@ -47,9 +62,7 @@ var Asteroids = (function () {
 
   MovingObject.prototype.isHit = function(asteroids) {
     for (var i = 0; i < asteroids.length; ++i) {
-      var dist - Math.sqrt(Math.pow((this.x - asteroids[i].x), 2) +
-                           Math.pow((this.y - asteroids[i].y), 2));
-
+      var dist = Math.sqrt(Math.pow((this.x - asteroids[i].x), 2) + Math.pow((this.y - asteroids[i].y), 2));
       if (dist < (this.r + asteroids[i].r)) return true;  
     }
 
@@ -71,19 +84,12 @@ var Asteroids = (function () {
    */ 
   function Asteroid(x, y) {
     MovingObject.apply(this, arguments);
-
-    this.MAX_RADIUS = 25;
-    this.randomAsteroid = function() {
-      return new Asteroid(w_width * Math.random(), 
-                          w_height * Math.random(),
-                          this.MAX_RADIUS * Math.random());
-    };
-
+    
     // Give this asteroid a random velocity so they all move in different
     // directions.
     this.velocity = {
-      x: Math.cos(Math.random() * Math.PI) * Math.random() * 5;
-      y: Math.sin(Math.random() * Math.PI) * Math.random() * 5;
+      x: Math.cos(Math.random() * Math.PI) * Math.random() * 5,
+      y: Math.sin(Math.random() * Math.PI) * Math.random() * 5
     };
   }
 
@@ -127,7 +133,7 @@ var Asteroids = (function () {
     };
   };
 
-  Ship.prototype.turn = function(delta) { this.direct += delta; };
+  Ship.prototype.turn = function(delta) { this.direction += delta; };
 
   Ship.prototype.power = function() {
     this.velocity.x = 5 * Math.cos(this.direction);
@@ -179,14 +185,26 @@ var Asteroids = (function () {
   function Game(ctx, numberOfAsteroids) {
     this.ctx = ctx;
     this.gameOver = false;
-
+    this.MAX_RADIUS = 25;
     this.asteroids = [];
+    this.requestID;
+    this.msgnotshown = true;
+
     for (var i = 0; i < numberOfAsteroids; ++i)
-      this.asteroids.push(Asteroid.randomAsteroid(w_width, w_height));
+      this.asteroids.push(new Asteroid(w_width * Math.random(),  w_height * Math.random(), this.MAX_RADIUS * Math.random()));
+
 
     this.bullets = [];
 
     this.ship = new Ship(w_width / 2, w_height / 2, 32);
+  };
+
+  Game.prototype.GameOverMsg = function(){
+    if(this.gameOver && this.msgnotshown) {
+      alert("Game Over");
+      this.msgnotshown = false;
+    }
+
   };
 
   Game.prototype.draw = function() {
@@ -196,7 +214,7 @@ var Asteroids = (function () {
     bg.src = "img/background.jpg";
     bg.onload = function() { that.ctx.drawImage(bg, 0, 0); };
 
-    for (var i = 0; i < this.asteroids.lengthl ++i)
+    for (var i = 0; i < this.asteroids.length; ++i)
       this.asteroids[i].draw(this.ctx);
 
     for (var i = 0; i < this.bullets.length; ++i)
@@ -237,6 +255,9 @@ var Asteroids = (function () {
     if (key.isPressed("left")) this.ship.turn(-Math.PI / 32);
     if (key.isPressed("right")) this.ship.turn(Math.PI / 32);
     if (key.isPressed("space")) this.bullets.push(this.ship.fireBullet());
+    if (this.gameOver && this.requestID){
+        this.GameOverMsg();
+    }
 
     this.update();
     this.draw();
@@ -244,13 +265,12 @@ var Asteroids = (function () {
 
   Game.prototype.start = function() {
     var that = this;
-    this.timer = window.setInterval(function() {
+    
+    (function animloop(){
+      that.requestID = requestAnimFrame(animloop);
       that.loop();
-      if (that.gameOver) {
-        alert('GAME OVER');
-        clearInterval(timer);
-      }
-    }, 1000 / 32);
+    }());
+
   };
 
   return { Asteroid: Asteroid, Game: Game };
