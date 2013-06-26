@@ -14,9 +14,8 @@ window.requestAnimFrame = (function(){
 
 var Asteroids = (function () {
   
-  var w_width = $(window).width();
-  var w_height = $(window).height();
-
+  var w_width = window.innerWidth - 30;
+  var w_height = window.innerHeight - 30;
   /*
    *  MovingObject 
    *
@@ -91,9 +90,27 @@ var Asteroids = (function () {
       x: Math.cos(Math.random() * Math.PI) * Math.random() * 5,
       y: Math.sin(Math.random() * Math.PI) * Math.random() * 5
     };
+    this.direction = Math.random()*Math.PI;
   }
 
   Asteroid.prototype = new MovingObject();
+
+  // Asteroid.prototype.draw = function(ctx) {
+  //   var asteroid = new Image();
+  //   var that = this;
+
+  //   asteroid.src = "img/asteroids.png";
+  //   asteroid.onload = function() {
+  //     ctx.save();
+  //     ctx.translate(that.x, that.y);
+  //     ctx.rotate(that.direction - Math.PI / 2);
+  //     ctx.translate(-that.x, -that.y);
+  //     ctx.drawImage(asteroid, that.x - 64, that.y - 64);
+  //     ctx.restore();
+  //   };
+  // };
+
+  // Asteroid.prototype.turn = function(delta) { this.direction += delta; };
 
   /* End Asteroid */
 
@@ -111,6 +128,9 @@ var Asteroids = (function () {
   function Ship(x, y) {
     MovingObject.apply(this, arguments);
 
+    this.spaceship = new Image();
+    this.spaceship.src = "img/spaceship.png";
+
     // The spaceship should not be moving until we tell it to.    
     this.velocity = { x: 0, y: 0 };
     this.direction = Math.PI;
@@ -119,18 +139,16 @@ var Asteroids = (function () {
   Ship.prototype = new MovingObject();
 
   Ship.prototype.draw = function(ctx) {
-    var spaceship = new Image();
-    var that = this;
-
-    spaceship.src = "img/spaceship.png";
-    spaceship.onload = function() {
+    
+    if(this.spaceship.width){
       ctx.save();
-      ctx.translate(that.x, that.y);
-      ctx.rotate(that.direct - Math.PI / 2);
-      ctx.translate(-that.x, -that.y);
-      ctx.drawImage(spaceship, that.x - 64, that.y - 64);
+      ctx.translate(this.x, this.y);
+      ctx.rotate(this.direction - Math.PI / 2);
+      ctx.translate(-this.x, -this.y);
+      ctx.drawImage(this.spaceship, this.x - 64, this.y - 64);
       ctx.restore();
-    };
+    }
+
   };
 
   Ship.prototype.turn = function(delta) { this.direction += delta; };
@@ -184,14 +202,20 @@ var Asteroids = (function () {
    */
   function Game(ctx, numberOfAsteroids) {
     this.ctx = ctx;
+    this.ctx.fillStyle = "white";
+    this.ctx.font = "bold 25px Arial";
     this.gameOver = false;
     this.MAX_RADIUS = 25;
     this.asteroids = [];
     this.requestID;
     this.msgnotshown = true;
+    this.score = 0;
+
+    this.bg = new Image();
+    this.bg.src = "img/background.jpg";
 
     for (var i = 0; i < numberOfAsteroids; ++i)
-      this.asteroids.push(new Asteroid(w_width * Math.random(),  w_height * Math.random(), this.MAX_RADIUS * Math.random()));
+      this.asteroids.push(new Asteroid(w_width * Math.random(),  w_height * Math.random(), this.MAX_RADIUS * Math.random()+5));
 
 
     this.bullets = [];
@@ -201,18 +225,17 @@ var Asteroids = (function () {
 
   Game.prototype.GameOverMsg = function(){
     if(this.gameOver && this.msgnotshown) {
-      alert("Game Over");
+      cancelAnimationFrame(this.requestID);
+      alert("Game Over! Your Score: "+this.score);
       this.msgnotshown = false;
     }
 
   };
 
   Game.prototype.draw = function() {
-    var bg = new Image();
-    var that = this;
-
-    bg.src = "img/background.jpg";
-    bg.onload = function() { that.ctx.drawImage(bg, 0, 0); };
+    
+    if(this.bg.width)
+      this.ctx.drawImage(this.bg, 0, 0);
 
     for (var i = 0; i < this.asteroids.length; ++i)
       this.asteroids[i].draw(this.ctx);
@@ -220,16 +243,20 @@ var Asteroids = (function () {
     for (var i = 0; i < this.bullets.length; ++i)
       this.bullets[i].draw(this.ctx);
 
+    this.ctx.fillText("Score: "+this.score, 25, 25);
+
     this.ship.draw(this.ctx);
   };
 
   Game.prototype.update = function() {
     for (var i = 0; i < this.asteroids.length; ++i) {
-      this.asteroids[i].update(this.asteroids[i].velocity);
       if (this.asteroids[i].isHit(this.bullets)) {
         this.asteroids.splice(i, 1); // Delete asteroid from asteroids array.
-        this.asteroids.push(Asteroid.randomAsteroid); // Spawn new asteroid. 
+        this.asteroids.push(new Asteroid(w_width * Math.random(),  w_height * Math.random(), this.MAX_RADIUS * Math.random()+5)); // Spawn new asteroid. 
+        this.score++;
       }
+      this.asteroids[i].update(this.asteroids[i].velocity);
+      //this.asteroids[i].turn(Math.PI / 32);
     }
 
     for (var i = 0; i < this.bullets.length; ++i) {
