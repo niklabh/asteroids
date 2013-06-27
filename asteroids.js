@@ -10,12 +10,14 @@ window.requestAnimFrame = (function(){
           };
 })();
 
+window.cancelAnimationFrame = window.cancelAnimationFrame || window.mozCancelAnimationFrame;
+
 
 
 var Asteroids = (function () {
   
-  var w_width = window.innerWidth - 30;
-  var w_height = window.innerHeight - 30;
+  var w_width = window.innerWidth;
+  var w_height = window.innerHeight;
   /*
    *  MovingObject 
    *
@@ -83,6 +85,9 @@ var Asteroids = (function () {
    */ 
   function Asteroid(x, y) {
     MovingObject.apply(this, arguments);
+
+    this.asteroid = new Image();
+    this.asteroid.src = "img/asteroids.png";
     
     // Give this asteroid a random velocity so they all move in different
     // directions.
@@ -95,22 +100,13 @@ var Asteroids = (function () {
 
   Asteroid.prototype = new MovingObject();
 
-  // Asteroid.prototype.draw = function(ctx) {
-  //   var asteroid = new Image();
-  //   var that = this;
+  Asteroid.prototype.draw = function(ctx) {
+    if(this.asteroid.width){
+      ctx.drawImage(this.asteroid,this.x,this.y,2*this.r,2*this.r);
+    };
+  };
 
-  //   asteroid.src = "img/asteroids.png";
-  //   asteroid.onload = function() {
-  //     ctx.save();
-  //     ctx.translate(that.x, that.y);
-  //     ctx.rotate(that.direction - Math.PI / 2);
-  //     ctx.translate(-that.x, -that.y);
-  //     ctx.drawImage(asteroid, that.x - 64, that.y - 64);
-  //     ctx.restore();
-  //   };
-  // };
-
-  // Asteroid.prototype.turn = function(delta) { this.direction += delta; };
+  // // Asteroid.prototype.turn = function(delta) { this.direction += delta; };
 
   /* End Asteroid */
 
@@ -132,14 +128,14 @@ var Asteroids = (function () {
     this.spaceship.src = "img/spaceship.png";
 
     // The spaceship should not be moving until we tell it to.    
-    this.velocity = { x: 0, y: 0 };
+    this.velocity = { x: 0.0, y: 0.0 };
     this.direction = Math.PI;
   }
 
   Ship.prototype = new MovingObject();
 
   Ship.prototype.draw = function(ctx) {
-    
+    //console.log(this.velocity);
     if(this.spaceship.width){
       ctx.save();
       ctx.translate(this.x, this.y);
@@ -206,6 +202,7 @@ var Asteroids = (function () {
     this.ctx.font = "bold 25px Arial";
     this.gameOver = false;
     this.MAX_RADIUS = 25;
+    this.MIN_RADIUS = 10;
     this.asteroids = [];
     this.requestID;
     this.msgnotshown = true;
@@ -215,7 +212,7 @@ var Asteroids = (function () {
     this.bg.src = "img/background.jpg";
 
     for (var i = 0; i < numberOfAsteroids; ++i)
-      this.asteroids.push(new Asteroid(w_width * Math.random(),  w_height * Math.random(), this.MAX_RADIUS * Math.random()+5));
+      this.asteroids.push(new Asteroid(w_width * Math.random(),  w_height * Math.random(), this.MAX_RADIUS * Math.random()+this.MIN_RADIUS));
 
 
     this.bullets = [];
@@ -224,11 +221,11 @@ var Asteroids = (function () {
   };
 
   Game.prototype.GameOverMsg = function(){
-    if(this.gameOver && this.msgnotshown) {
-      cancelAnimationFrame(this.requestID);
-      alert("Game Over! Your Score: "+this.score);
-      this.msgnotshown = false;
-    }
+     if(this.gameOver && this.msgnotshown) {
+       cancelAnimationFrame(this.requestID);
+       alert("Game Over! Your Score: "+this.score);
+       this.msgnotshown = false;
+     }
 
   };
 
@@ -252,7 +249,7 @@ var Asteroids = (function () {
     for (var i = 0; i < this.asteroids.length; ++i) {
       if (this.asteroids[i].isHit(this.bullets)) {
         this.asteroids.splice(i, 1); // Delete asteroid from asteroids array.
-        this.asteroids.push(new Asteroid(w_width * Math.random(),  w_height * Math.random(), this.MAX_RADIUS * Math.random()+5)); // Spawn new asteroid. 
+        this.asteroids.push(new Asteroid(w_width * Math.random(),  w_height * Math.random(), this.MAX_RADIUS * Math.random()+this.MIN_RADIUS)); // Spawn new asteroid. 
         this.score++;
       }
       this.asteroids[i].update(this.asteroids[i].velocity);
@@ -293,10 +290,11 @@ var Asteroids = (function () {
   Game.prototype.start = function() {
     var that = this;
     
-    (function animloop(){
-      that.requestID = requestAnimFrame(animloop);
+    var animloop = function(){
       that.loop();
-    }());
+      requestAnimFrame(animloop);
+    };
+    this.requestID = requestAnimFrame(animloop);
 
   };
 
