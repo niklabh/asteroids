@@ -1,4 +1,4 @@
-asteroids
+Node-Asteroids
 =========
 
-Asteroids in HTML5/Canvas/JS.
+Asteroids Game in Node.js/HTML5/Canvas/JS.
